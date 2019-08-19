@@ -1,0 +1,520 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/monokai.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<style>
+			.reveal h1,
+			.reveal h2,
+			.reveal h3,
+			.reveal h4,
+			.reveal h5,
+			.reveal h6 {
+			text-transform: none !important;
+			}
+		</style>
+		<div class="reveal">
+			<div class="slides">
+				<section data-markdown>
+					## FLOCSSの知見と独自解釈　　
+				</section>
+				<section>
+					<section data-markdown>
+						### はじめに  
+						簡素な静的サイトや、CMSを組み合わせた中規模程度のサイトで約一年ほど、FLOCSSを使用してきました。  
+						本スライドでは、その中で感じた利点、公式ドキュメントとは違った運用方法や知見を共有したいと思います。  
+						<br>
+						<b>※</b> 必ずしも本スライドに書いてある事が正しいというわけでありません。  
+						また後述に記載している、Githubの公式ドキュメントを読み終わっている前提で記載しています。  
+						環境構築方法や、CSS,SCSSの書き方などには言及していません。  
+					</section>
+					<section data-markdown>
+						#### FLOCSSとは  
+						BEM,SMACSSなどを取り入れつつ,モジュラーなアプローチのためのCSS構成案です。  
+						アイデア集的な要素もあり、FLOCSSの考え方を基本としながらも、  
+						開発現場によって独自に拡張しやすいのが特徴です。  
+						<br>
+						コーポレートサイトやLPなどデザインパーツが多彩なプロジェクトに適していると感じています。  
+						<br>
+						github  
+							https://github.com/hiloki/flocss  
+						書籍  
+							https://mamehiko.booth.pm/items/1033385  
+					</section>
+					<section data-markdown>
+						#### FLOCSSの利点  
+						- 設計ルールが単純なため、プロダクト途中の参加や引き継ぎが容易  
+						<br>
+						- ファイル構成と命名規則が明確なため、別のプロジェクトにもデザインパーツを移植しやすい。  
+						<br>
+						- jsフレームワークの恩恵が無い(ファイル単位でCSSのスコープが持てない)環境でも難解な上書きが発生しにくい。  
+						<br>
+						- クラスの影響範囲が予測しやすい。    　
+					</section>
+				</section>
+				<section>
+					<section data-markdown>
+						### 設計概要  
+						簡単な設計概要を説明します。  
+						<br>
+						下記の3つのレイヤーとObjectレイヤーの子レイヤーから構成されます。  
+						クラス名にそれぞれのモジュールのプレフィックスをつけて管理します。  
+						<br>
+						<b>F</b> Foundation  
+						<b>L</b> Layout (l-layout.scss)  
+						<b>O</b> Object  
+						|ー project (p-project.scss)  
+						|ー component (c-component.scss)  
+						|ー utility (u-utility.scss)  
+					</section>
+					<section data-markdown>
+						## Foundation  
+						<b>Foundationレイヤー</b>  
+						<br>
+						reset.cssやベース、フォント用のCSSを定義します。  
+						variableなどの変数管理もこちらに定義します。  
+						プロジェクトごとの基本設定が該当します。  
+					</section>
+					<section data-markdown>
+						## Layout  
+						<b>Layoutレイヤー</b>  
+						<br>
+						ヘッダーやフッター,サイドバーなどを定義する際に使用します。  
+						後述しますが、なるべくカラーなどの装飾寄りのCSSプロパティを含まないようにします。  
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							~~~html
+								<header class='l-header'>
+									<div class='l-header_inner'></div>
+								</header>
+
+								<aside class='l-sidebar'>
+										<div class='l-sidebar_inner'></div>
+								</aside>
+
+								<footer class="l-footer">
+									<div class="l-footer_inner"></div>
+								</footer>
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+						## Project  
+						<b>Projectレイヤー</b>  
+						<br>
+						FLOCSSに置いてもっとも重要で、判断が難しいデザインパーツです。  
+						componentが集まって構成されるパーツや、プロダクト固有のものを定義します。  
+						恐らく、ファイル数がもっとも増えるレイヤーになります。  
+						ファイル名もあえて、汎用性を意識しないことが多く、たとえ似通ったデザインであっても,
+						用途が違えばファイルごと複製する事が多いです。  
+						<br>
+						少しイメージしにくかもしれませんが、componentは必要最低限のパーツであり、projectはcomponentが複数集まった塊です。  
+						ただし、project一つのレイヤーで完結する場合もあります。  
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							~~~html
+								<div class='p-event'>
+									<div class='p-event_item'>
+										<div class='p-event_title c-title'>EVENT</div>
+									</div>
+								</div>
+
+								<div class='p-news'>
+									<div class='p-news_item'>
+											<div class='c-title'>NEWS</div>
+									</div>
+								</div>
+
+								<div class='p-banner'>
+									<p class='p-banner_text'>売り出し中!!!</p>
+								</div>
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+							<script type="text/template">
+								~~~CSS
+									/* p-event.scss */
+										.p-event{
+											&_item{}
+											&_title{}
+										}
+								~~~
+
+								~~~CSS
+									/* p-news.scss */
+										.p-news{
+											&_item{}
+										}
+								~~~
+
+								~~~CSS
+									/* p-banner.scss */
+										.p-banner{
+											&_text{}
+										}
+								~~~
+							</script>
+						</section>
+					<section data-markdown>
+						## component
+						<b>Componentレイヤー</b>
+						<br>
+						汎用性の高いパーツに利用します。  
+						プロジェクト内で複数使われるデザインや、ボタン、リンクなどもこのレイヤーに該当します。  
+						下記の"c-card"の例のように、複数利用前提の場合は、  
+						ラップする要素を含めて一つの モジュールとして扱うと都合が良い場面が多いです。  
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							~~~html
+								<div class='c-card'>
+									<div class='c-card_item'>
+										<div class='c-card_title'>
+											<p>コンテンツ</p>
+										</div>
+									</div>
+									<div class='c-card_item'>
+										<div class='c-card_title'>
+											<p>コンテンツ</p>
+										</div>
+									</div>
+								</div>
+
+								<button class='c-button'>CLICK</button>
+								
+								<a class='c-link'>LINK</a>
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+						## Utility
+						<b>Utilityレイヤー</b>
+						<br>
+						Utilityは例外用のヘルパーレイヤーになります。  
+						マージンの調整や、アニメーションなどの用途に使う事が多いです。  
+					</section>
+				</section>
+				<section>
+					<section data-markdown>
+						### FLOCSSの設計ルール  
+						<br>
+						FLOCSSを使用する上で、もっとも重要な部分になります。  
+						提唱されているルールを守ることで,堅牢かつ変更に耐えやすい設計になります。  
+						<br>
+						<br>
+						<b>FLOCSSの主な設計ルール</b>  
+						<br>
+						・ファイル名とクラス名は統一する  
+						・一つのCSSファイルに対して、二つ以上のクラスを追加しない。  
+						・モジュール同士のネストは禁止  
+						・Objectレイヤーは Project Compoent Utilty の順番に追記する。  
+						・同レイヤーのクラスの重ねがけは禁止  
+					</section>
+					<section data-markdown>
+						#### 二つ以上のクラスブロックを追加しない。  
+						<br>
+						一つのCSSファイルに二つ以上のクラスブロックを定義するのはNGです。  
+						CSSの影響範囲の予測が困難になり、検索精度も下がります。  
+						言葉だとわかりにくいかと思いますので、例を確認してください。  
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							~~~CSS
+								/*c-card.scss*/
+
+								/* NG */
+								.c-card{
+									&_title{}
+								}
+
+								.c-title{
+
+								}
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+						#### モジュール同士のネストは禁止  
+						組み合わせによってセレクタの優先度が変わってしまうため  
+						モジュール同士のネストは禁止です。  
+					</section>
+					<section data-markdown="">
+						<script type="text/template">
+							~~~CSS
+								/* NG */
+								.c-card{
+									&_title{}
+
+									/* 別ファイルのモジュールを読み込む */
+									.c-article{
+										&_title{}
+									}
+
+								}
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+						#### ファイル名とクラス名は統一する。  
+						<br>
+						ファイル名とクラス名を統一をすることで、視認性と検索の精度が高まります。  
+						クラス名に変更があった際は、必ず合わせてファイル名も変更するようにしましょう。  
+					</section>
+					<section data-markdown>
+						#### Objectレイヤーは Project Compoent Utilty の順番に記載します。  
+						<br>
+						別レイヤー同士で、クラス名を追記する時は P > C > Uの順番で書くと  
+						視認性が高まります。(より左あるクラスの方が詳細度が高い)  
+						※公式の書き方は逆になります。  
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							~~~html
+								<div class='l-contents'>
+									<div class='l-contents_inner'>
+										<div class='p-news'>
+											<div class='p-news_title c-title u-textGradation'>TITLE</div>
+										</div>
+									</div>
+								</div>
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+						#### 同レイヤーの重ねがけは禁止  
+						詳細度の特定が困難になるため、同一レイヤーの重ねがけはNGです。  
+					</section>
+					<section data-markdown>
+							<script type="text/template">
+								~~~html
+									<!-- NG -->
+									<div class='l-contents l-header'>
+										<div class='l-contents_inner'>
+											<div class='p-news p-event'>
+												<div class='p-news_title p-titleStrong'>TITLE</div>
+											</div>
+										</div>
+									</div>
+								~~~
+							</script>
+					</section>
+				</section><!--END--->
+				<section>
+					<section data-markdown>
+						### 悩みどころと独自解釈
+						<br>
+						FLOCSSを実際に書いていく中で、悩んだところ、  
+						また独自に解釈し運用を進めた箇所を記載します。  
+						FLOCSSはある程度、開発側に柔軟に変更する余地を与えているので、それぞれの環境に適した対応が可能です。  
+						<br>
+						・layoutのprojectか  
+						・projectかcomponentか  
+						・モディファイアの扱い方  
+						・jsのターゲットクラス  
+					</section>
+					<section data-markdown>
+						#### layoutかprojectか  
+						ヘッダーなどをlayoutレイヤーで作成する際に、付随するロゴやナビゲーションをlayoutレイヤーにするのか、purojectレイヤーで作成するのか、悩みどころです。  
+						<br>
+						ここは、個人的な解釈になりますが、projectで作成する方が管理がしやすいと思います。  
+						layoutにまとめると、一つのCSSファイルが肥大化してしまいFLOCSSの利点が薄れてしまいます。  
+						あくまでlayoutは"サイト構造のCSS"を記述するだけに留め、"装飾を目的としたCSS"はporojectレイヤーに担ってもらうべきという考えです。  
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							~~~html
+								<!--GOOD-->
+								<div class='l-header'>
+									<div class='l-header_inner'>
+										<div class='p-logo'>
+											<img class='p-logo_img' src='/src/hoge.png' alt='logo'>
+										</div>
+									</div>
+								</div>
+								<!--NG-->
+								<div class='l-header'>
+									<div class='l-header_inner'>
+										<div class='l-header_logo'>
+											<img class='l-header_logo_img' src='/src/hoge.png' alt='logo'>
+										</div>
+									</div>
+								</div>
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+						#### projectかcomponentか  
+						<br>
+						projectを"プロダクト固有のものを定義"、componentを"プロジェクト内で複数使われるデザイン"と書きましたが  
+						実際に書き始めると二つのレイヤーの区別に悩んでしまうものです。  
+						この場合の解決策として、最初は"迷ったらprojectレイヤー"にする。という方針で進めていました。  
+						FLOCSSは常にリファクタリングしながら構築する必要があり、projectレイヤーに同じCSSを書き続けている事があれば、都度抜き出して、componentレイヤーに書き出す方法が一番無難かと思います。  
+					</section>
+					<section data-markdown>
+						#### モディファイアの扱い方  
+						<br>
+						layout,project,componentそれぞれにモディファイアクラスが必要になる場面があります。  
+						ここは好みによるのですが、モディファイアは"ハイフン"で始めるクラス名に統一しています。  
+						<br>
+						一つのファイルにモディファイアが増えていると感じたらファイル切り出しの合図です。  
+						<br>
+						その他にもモディファイアを付与したクラスにさらにネストしてスタイルを付与する場合は、別のモジュールに切り出す方が無難です。  
+						言葉ではわかりにくいので例を確認してください。  
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							~~~CSS
+								/* NG */
+								/* c-card.scss */
+								.c-card{
+									&_inner{
+										&.-is-block{
+											/*　モディファイアが付与されている必要がある。 */
+											.c-card_title{}
+											.c-card_desc{}
+										}
+									}
+									&_title{}
+									&_desc{}
+								}
+
+								/* OK */
+								/* c-cardBlock.scss */
+								/* 思い切って違うモジュールに切り出す */
+								.c-cardBlock{
+									&_inner{}
+									&_title{}
+									&_desc{}
+								}
+							~~~
+						</script>
+					</section>
+					<section data-markdown>
+						#### jsのターゲットクラス  
+						<br>
+						クラス名をトリガーにDOM操作などを行う場合は、"js-"のプレフィックスを付きのクラスを作成します。  
+						このクラスには装飾やレイアウトなど一切のCSSプロパティを付与しません。  
+					</section>
+				</section>
+				<section data-markdown>
+					## まとめ  
+					<br>
+					以上が私自身が一年FLOCSSを利用した際の知見や運用方法になります。  
+					最初は戸惑うことも多く、CSSを書く量が増えてしまうと感じるでしょう。  
+					しかし、作成したレイヤーはプロジェクトを横断して利用可能で、ルール通り構築していれば、ファイルの移植も非常に簡単です。  
+					また、リファクタリングの手軽さにも優れており、クラスの影響範囲も把握しやすいです。  
+					<br>
+					HTML,CSSの設計に正解はありません、手軽に書けてしまう反面、容易に崩壊しやすく、リファクタリングの難度も上がります。  
+					可能な限り、秩序ある設計を心がけていきましょう!
+				</section>
+				<!-- <section>
+					おまけ
+					最近使うCSSプロパティ
+					<section>
+						:not()
+						https://developer.mozilla.org/ja/docs/Web/CSS/:not
+						https://coliss.com/articles/build-websites/operation/css/css-not-and-specificity.html
+						<script type="text/template">
+							~~~CSS
+
+							~~~
+						</script>
+					</section>
+					<section>
+							attr()
+							https://coliss.com/articles/build-websites/operation/css/css-can-do-that.html
+							<script type="text/template">
+								~~~CSS
+	
+								~~~
+							</script>
+						</section>
+						<section>
+								clamp
+								https://qiita.com/yoshida-hi/items/055c36e015f0bf8fe4f6
+								<script type="text/template">
+									~~~CSS
+		
+									~~~
+								</script>
+							</section>
+							<section>
+									grid
+									https://qiita.com/yoshida-hi/items/055c36e015f0bf8fe4f6
+									<script type="text/template">
+										~~~CSS
+			
+										~~~
+									</script>
+								</section>
+								<section>
+										empty not
+										https://coliss.com/articles/build-websites/operation/css/empty-and-blank.html
+										<script type="text/template">
+											~~~CSS
+				
+											~~~
+										</script>
+									</section>
+									<section>
+											sticke
+											https://coliss.com/articles/build-websites/operation/css/css-position-sticky-how-it-really-works.html
+											<script type="text/template">
+												~~~CSS
+					
+												~~~
+											</script>
+										</section>
+										<section>
+												target
+												https://coliss.com/articles/build-websites/operation/css/css-position-sticky-how-it-really-works.html
+												<script type="text/template">
+													~~~CSS
+						
+													~~~
+												</script>
+											</section>
+				</section> -->
+			</div>
+		</div>
+
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true }
+				]
+			});
+		</script>
+	</body>
+</html>
