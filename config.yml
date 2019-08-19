@@ -1,0 +1,6 @@
+theme: "night" #テーマ設定
+transition: "page" #スライドの挙動設定
+title: "Let's FLOCSS" #スライドのタイトル。<title>に設定されます。
+revealjs_config: #以下、reveal.js用の個別設定（厳密には上の、themeもtransitionもreveal.jsの設定です）
+  autoSlide: 5000
+  loop: true
